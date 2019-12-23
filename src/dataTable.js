@@ -20,7 +20,7 @@ export function DataTable() {
         setLoading(false);
       }
     })();
-  }, [loading]);
+  }, [userProfile]);
 
 
   return (
