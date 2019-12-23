@@ -1,39 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
 import { useStore } from './store';
-import { Table } from 'antd';
+import { Table, Spin } from 'antd';
+import { axiosAuthInstance } from "./connection";
 
 export function DataTable() {
-  // const [{ userProfile }, dispatch] = useStore();
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      width: 150,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      width: 150,
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-    },
-  ];
+  const [{ userProfile }] = useStore();
+  const [columns, setColumns] = useState([]);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      key: i,
-      name: `Edward King ${i}`,
-      age: 32,
-      address: `London, Park Lane no. ${i}`,
-    });
-  }
+  useEffect(() => {
+    (async () => {
+      if (userProfile && userProfile.token) {
+        const content = await axiosAuthInstance.get("data");
+        setColumns(content.data.columns);
+        setData(content.data.data);
+        setLoading(false);
+      }
+    })();
+  }, [loading]);
+
 
   return (
-    <Table columns={columns} dataSource={data} pagination={{ pageSize: 50 }} scroll={{ y: 240 }} />
+    loading ? (
+      <Spin tip="Loading..."></Spin>
+    ) : (
+        <Table columns={columns} dataSource={data} pagination={{ pageSize: 50 }} scroll={{ y: 240 }} />
+      )
   );
 }

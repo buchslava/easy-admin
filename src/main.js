@@ -10,9 +10,9 @@ export function Main(props) {
 
   React.useEffect(() => {
     if (userProfile === null) {
-      localStorage.removeItem('userProfile');
+      sessionStorage.removeItem('userProfile');
     } else {
-      localStorage.setItem('userProfile', JSON.stringify(userProfile));
+      sessionStorage.setItem('userProfile', JSON.stringify(userProfile));
     }
   }, [userProfile]);
 

@@ -3,17 +3,26 @@ import 'antd/dist/antd.css';
 import './index.css';
 import { useStore } from './store';
 import { setUserProfile } from './actions';
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, notification } from 'antd';
+import { axiosInstance } from "./connection";
 
 function LoginFormSrc(props) {
   const [{ userProfile }, dispatch] = useStore();
   const handleSubmit = e => {
     e.preventDefault();
-    props.form.validateFields((err, values) => {
+    props.form.validateFields(async (err, values) => {
       if (!err) {
-        dispatch(setUserProfile({
-          email: values.username
-        }));
+        const username = values.username;
+        try {
+          const result = await axiosInstance.post("login", { username, password: values.password });
+          const token = result.data.token;
+          dispatch(setUserProfile({ username, token }));
+        } catch (e) {
+          notification.open({
+            message: "Login",
+            description: "Login error. Check your login and password"
+          });
+        }
       }
     });
   };

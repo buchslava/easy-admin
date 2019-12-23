@@ -2,16 +2,25 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
 import { useStore } from './store';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, notification } from 'antd';
 import { resetUserProfile } from './actions';
+import { axiosInstance } from "./connection";
 import { DataTable } from './dataTable';
 
 const { Content, Footer, Sider } = Layout;
 
-export function AppLayout(props) {
+export function AppLayout() {
   const [{ userProfile }, dispatch] = useStore();
-  const logout = () => {
-    dispatch(resetUserProfile());
+  const logout = async () => {
+    try {
+      await axiosInstance.get("logout");
+      dispatch(resetUserProfile());
+    } catch (e) {
+      notification.open({
+        message: "Logout",
+        description: "Logout error. Perhaps this session is invalidated."
+      });
+    }
   };
 
   return (
@@ -25,7 +34,7 @@ export function AppLayout(props) {
         }}
       >
         <div className="logo">
-          {userProfile.email}&nbsp;|&nbsp;
+          {userProfile.username}&nbsp;|&nbsp;
         <a href="#" onClick={logout}>Logout</a>
         </div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']}>

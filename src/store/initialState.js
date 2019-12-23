@@ -1,3 +1,3 @@
 export default {
-  userProfile: JSON.parse(localStorage.getItem('userProfile'))
+  userProfile: JSON.parse(sessionStorage.getItem('userProfile'))
 };
