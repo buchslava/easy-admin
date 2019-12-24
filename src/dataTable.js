@@ -6,28 +6,40 @@ import { Table, Spin } from 'antd';
 import { axiosAuthInstance } from "./connection";
 
 export function DataTable() {
-  const [{ userProfile, currentScreen }] = useStore();
+  const [{ currentScreen }] = useStore();
   const [columns, setColumns] = useState([]);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
-      if (userProfile && userProfile.token) {
-        const content = await axiosAuthInstance.get("data");
-        setColumns(content.data.columns);
-        setData(content.data.data);
-        setLoading(false);
+      const content = await axiosAuthInstance.get(`data/${currentScreen}`);
+      if (!currentScreen) {
+        return;
       }
+      setLoading(true);
+      const columns = [];
+      columns.push({
+        title: "ID",
+        dataIndex: "rowid",
+        width: 50,
+      });
+      for (const column of content.data.columns) {
+        columns.push({
+          title: column.label,
+          dataIndex: column.id,
+          width: 150,
+        });
+      }
+      const rows = content.data.rows.map((row, i) => ({...row, key: i}));
+      setColumns(columns);
+      setData(rows);
+      setLoading(false);
     })();
-  }, [userProfile]);
-
-  useEffect(() => {
-    console.log('!!!', currentScreen);
   }, [currentScreen]);
 
-
   return (
+    !currentScreen ? (<></>) :
     loading ? (
       <Spin tip="Loading..."></Spin>
     ) : (

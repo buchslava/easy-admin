@@ -10,7 +10,7 @@ import { DataTable } from './dataTable';
 const { Content, Footer, Sider } = Layout;
 
 export function AppLayout() {
-  const [{ userProfile }, dispatch] = useStore();
+  const [{ userProfile, currentScreen }, dispatch] = useStore();
   const [config, setConfig] = useState();
   const [loading, setLoading] = useState(true);
   const logout = async () => {
