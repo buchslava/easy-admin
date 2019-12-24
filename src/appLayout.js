@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './index.css';
 import { useStore } from './store';
 import { Layout, Menu, notification, Spin, Avatar, Button, Row, Col, Card } from 'antd';
-import { resetUserProfile } from './actions';
+import { resetUserProfile, setCurrentScreen } from './actions';
 import { axiosInstance, axiosAuthInstance } from "./connection";
 import { DataTable } from './dataTable';
 
@@ -24,9 +24,7 @@ export function AppLayout() {
       });
     }
   };
-  const selectMenuItem = (menuId) => {
-    console.log(menuId);
-  };
+  const selectMenuItem = (menuId) => dispatch(setCurrentScreen(menuId));
 
   useEffect(() => {
     (async () => {

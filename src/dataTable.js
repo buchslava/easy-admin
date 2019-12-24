@@ -6,7 +6,7 @@ import { Table, Spin } from 'antd';
 import { axiosAuthInstance } from "./connection";
 
 export function DataTable() {
-  const [{ userProfile }] = useStore();
+  const [{ userProfile, currentScreen }] = useStore();
   const [columns, setColumns] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +21,10 @@ export function DataTable() {
       }
     })();
   }, [userProfile]);
+
+  useEffect(() => {
+    console.log('!!!', currentScreen);
+  }, [currentScreen]);
 
 
   return (
