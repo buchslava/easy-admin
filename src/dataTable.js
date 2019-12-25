@@ -13,26 +13,33 @@ export function DataTable() {
   const [editVisible, setEditVisible] = useState(false);
   const [confirmEditLoading, setConfirmEditLoading] = useState(false);
 
-  const handleEditOk = () => {};
+  const handleEditOk = () => {
+    setConfirmEditLoading(true);
+    (async () => {
+      const res = await axiosAuthInstance.post(`insert/${currentScreen}`, {name: "foo"});
+      const newRecord = res.data;
+      console.log(newRecord);
+      newRecord.key = newRecord.rowid;
+      setData([newRecord, ...data]);
+      setConfirmEditLoading(false);
+      setEditVisible(false);
+    })();
+  };
   const handleEditCancel = () => {
     setEditVisible(false);
   };
-  const addNewRow = () => {
-    setEditVisible(true);
-    // const newRow = { rowid: 10, name: "foo", key: 10 };
-    // setData([newRow, ...data]);
-  };
+  const addNewRow = () => setEditVisible(true);
   const handleDelete = (recordKey) => {
     console.log(recordKey);
   };
 
   useEffect(() => {
     (async () => {
-      const content = await axiosAuthInstance.get(`data/${currentScreen}`);
       if (!currentScreen) {
         return;
       }
       setLoading(true);
+      const content = await axiosAuthInstance.get(`select/${currentScreen}`);
       const columns = [];
       columns.push({
         title: "ID",
