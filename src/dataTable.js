@@ -4,6 +4,7 @@ import './index.css';
 import { useStore } from './store';
 import { Table, Spin, Button, Popconfirm, Modal } from 'antd';
 import { axiosAuthInstance } from "./connection";
+import { EditForm } from "./editForm";
 
 export function DataTable() {
   const [{ currentScreen }] = useStore();
@@ -12,15 +13,21 @@ export function DataTable() {
   const [loading, setLoading] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
   const [confirmEditLoading, setConfirmEditLoading] = useState(false);
+  const [submitFlag, setSubmitFlag] = useState(0);
 
-  const handleEditOk = () => {
+  const doEditOk = () => {
+    setSubmitFlag(submitFlag + 1);
+  };
+
+  const handleEditOk = (formData) => {
+    console.log(777, formData);
     setConfirmEditLoading(true);
     (async () => {
-      const res = await axiosAuthInstance.post(`insert/${currentScreen}`, {name: "foo"});
+      /*const res = await axiosAuthInstance.post(`insert/${currentScreen}`, {name: "foo"});
       const newRecord = res.data;
       console.log(newRecord);
       newRecord.key = newRecord.rowid;
-      setData([newRecord, ...data]);
+      setData([newRecord, ...data]);*/
       setConfirmEditLoading(false);
       setEditVisible(false);
     })();
@@ -58,7 +65,7 @@ export function DataTable() {
         dataIndex: 'operation',
         render: (text, record) =>
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-            <a>Delete</a>
+            <a href="#">Delete</a>
           </Popconfirm>
       });
 
@@ -85,11 +92,11 @@ export function DataTable() {
             <Modal
               title="---"
               visible={editVisible}
-              onOk={handleEditOk}
+              onOk={doEditOk}
               confirmLoading={confirmEditLoading}
               onCancel={handleEditCancel}
             >
-              <div>modal</div>
+              <EditForm submitFlag={submitFlag} handleEditOk={handleEditOk}></EditForm>
             </Modal>
           </div>
         )

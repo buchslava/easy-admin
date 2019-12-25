@@ -3,16 +3,15 @@ import 'antd/dist/antd.css';
 import './index.css';
 import { useStore } from './store';
 import { Layout, Menu, notification, Spin, Avatar, Button, Row, Col, Card } from 'antd';
-import { resetUserProfile, setCurrentScreen } from './actions';
+import { resetUserProfile, setCurrentScreen, setConfig } from './actions';
 import { axiosInstance, axiosAuthInstance } from "./connection";
 import { DataTable } from './dataTable';
 
 const { Content, Footer, Sider } = Layout;
 
 export function AppLayout() {
-  const [{ userProfile, currentScreen }, dispatch] = useStore();
-  const [config, setConfig] = useState();
-  const [loading, setLoading] = useState(true);
+  const [{ userProfile, currentScreen, config }, dispatch] = useStore();
+  const [loading, setLoading] = useState(false);
   const logout = async () => {
     try {
       await axiosInstance.get("logout");
@@ -28,14 +27,13 @@ export function AppLayout() {
 
   useEffect(() => {
     (async () => {
-      if (!config) {
-        const content = await axiosAuthInstance.get("global-config");
-        setConfig(content.data);
-        setLoading(false);
-      }
+      setLoading(true);
+      const content = await axiosAuthInstance.get("global-config");
+      dispatch(setConfig(content.data));
+      sessionStorage.setItem('config', JSON.stringify(content.data));
+      setLoading(false);
     })();
-  }, [config]);
-
+  }, []);
 
   return (
     loading ? (
@@ -52,17 +50,17 @@ export function AppLayout() {
           >
             <Row>
               <Col>
-              <Card style={{backgroundColor: '#7265e6', textAlign: 'center', border: 'none'}}>
-                <Avatar style={{ backgroundColor: '#00a2ae', verticalAlign: 'middle' }} size="large">
-                  {userProfile.username}
-                </Avatar>
-                <Button
-                  size="small"
-                  style={{ marginLeft: 16, verticalAlign: 'middle' }}
-                  onClick={logout}>
-                  logout
+                <Card style={{ backgroundColor: '#7265e6', textAlign: 'center', border: 'none' }}>
+                  <Avatar style={{ backgroundColor: '#00a2ae', verticalAlign: 'middle' }} size="large">
+                    {userProfile.username}
+                  </Avatar>
+                  <Button
+                    size="small"
+                    style={{ marginLeft: 16, verticalAlign: 'middle' }}
+                    onClick={logout}>
+                    logout
                   </Button>
-                  </Card>
+                </Card>
               </Col>
             </Row>
             <Menu theme="dark" mode="inline">

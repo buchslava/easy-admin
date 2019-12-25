@@ -1,4 +1,5 @@
 export default {
   userProfile: JSON.parse(sessionStorage.getItem('userProfile')),
-  currentScreen: null
+  config: JSON.parse(sessionStorage.getItem('config')),
+  currentScreen: null,
 };

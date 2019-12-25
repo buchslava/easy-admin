@@ -23,8 +23,14 @@ const setCurrentScreen = (state, { payload }) => ({
   currentScreen: payload.screenId
 });
 
+const setConfig = (state, { payload }) => ({
+  ...state,
+  config: payload.config
+});
+
 export default createReducer({
   [types.SET_USER_PROFILE]: setUserProfile,
   [types.RESET_USER_PROFILE]: resetUserProfile,
   [types.SET_CURRENT_SCREEN]: setCurrentScreen,
+  [types.SET_CONFIG]: setConfig,
 });
