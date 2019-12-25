@@ -2,20 +2,29 @@ import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './index.css';
 import { useStore } from './store';
-import { Layout, Menu, notification, Spin, Form, Input } from 'antd';
-import { resetUserProfile, setCurrentScreen } from './actions';
-import { axiosInstance, axiosAuthInstance } from "./connection";
-import { DataTable } from './dataTable';
+import { Spin, Form, Input } from 'antd';
+// import { axiosInstance, axiosAuthInstance } from "./connection";
 
-const { Content, Footer, Sider } = Layout;
+const createFieldResoler = getFieldDecorator => ({
+  text: (config, key) => (
+    <Form.Item
+      key={key}
+      label={
+        <span>{config.label}&nbsp;</span>
+      }
+    >
+      {getFieldDecorator(config.id, {
+        rules: config.rules,
+      })(<Input />)}
+    </Form.Item>
+  )
+});
 
 function EditFormSrc(props) {
   const [loading, setLoading] = useState(false);
   const [{ config, currentScreen }] = useStore();
   const currentScreenConfig = !!currentScreen ? config.find(item => item.id === currentScreen) : null;
   const { form } = props;
-
-  // console.log(currentScreenConfig, form, props);  
 
   useEffect(() => {
     if (props.submitFlag === 0) {
@@ -25,7 +34,8 @@ function EditFormSrc(props) {
       if (err) {
         return;
       }
-      props.handleEditOk(values)
+      props.handleEditOk(values);
+      form.resetFields();
     });
   }, [props.submitFlag]);
 
@@ -41,23 +51,14 @@ function EditFormSrc(props) {
   };
 
   const { getFieldDecorator } = props.form;
+  const fieldResoler = createFieldResoler(getFieldDecorator);
+  const fields = currentScreenConfig.columns.map((column, i) => {
+    // console.log(column.type, fieldResoler);
+    return fieldResoler[column.type](column, i);
+  });
 
   return (
-    loading ? (
-      <Spin tip="Loading..."></Spin>
-    ) : (
-        <Form {...formItemLayout}>
-          <Form.Item
-            label={
-              <span>Nickname&nbsp;</span>
-            }
-          >
-            {getFieldDecorator('nickname', {
-              rules: [{ required: true, message: 'Please input your nickname!', whitespace: true }],
-            })(<Input />)}
-          </Form.Item>
-        </Form>
-      )
+    loading ? (<Spin tip="Loading..."></Spin>) : (<Form {...formItemLayout}>{fields}</Form>)
   );
 }
 

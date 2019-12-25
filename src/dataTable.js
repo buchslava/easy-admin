@@ -20,14 +20,12 @@ export function DataTable() {
   };
 
   const handleEditOk = (formData) => {
-    console.log(777, formData);
-    setConfirmEditLoading(true);
     (async () => {
-      /*const res = await axiosAuthInstance.post(`insert/${currentScreen}`, {name: "foo"});
+      setConfirmEditLoading(true);
+      const res = await axiosAuthInstance.post(`insert/${currentScreen}`, formData);
       const newRecord = res.data;
-      console.log(newRecord);
       newRecord.key = newRecord.rowid;
-      setData([newRecord, ...data]);*/
+      setData([newRecord, ...data]);
       setConfirmEditLoading(false);
       setEditVisible(false);
     })();
