@@ -25,7 +25,9 @@ export function DataTable(props) {
     })();
   };
 
-  useEffect(() => doDelete(deleteRequest), [deleteRequest]);
+  useEffect(() => {
+    doDelete(deleteRequest);
+  }, [deleteRequest]);
 
   useEffect(() => {
     if (props.columns && props.data) {

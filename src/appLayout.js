@@ -30,11 +30,13 @@ export function AppLayout() {
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      const content = await axiosAuthInstance.get("global-config");
-      dispatch(setConfig(content.data));
-      sessionStorage.setItem('config', JSON.stringify(content.data));
-      setLoading(false);
+      if (!config) {
+        setLoading(true);
+        const content = await axiosAuthInstance.get("global-config");
+        dispatch(setConfig(content.data));
+        sessionStorage.setItem('config', JSON.stringify(content.data));
+        setLoading(false);
+      }
     })();
   }, []);
 
@@ -52,7 +54,7 @@ export function AppLayout() {
   }, [currentScreen]);
 
   return (
-    loading ? (
+    loading || !config ? (
       <Spin tip="Loading..."></Spin>
     ) : (
         <Layout>
