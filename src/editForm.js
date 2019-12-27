@@ -17,7 +17,31 @@ const createFieldResoler = getFieldDecorator => ({
         rules: config.rules,
       })(<Input />)}
     </Form.Item>
-  )
+  ),
+  numeric: (config, key) => (
+    <Form.Item
+      key={key}
+      label={
+        <span>{config.label}&nbsp;</span>
+      }
+    >
+      {getFieldDecorator(config.id, {
+        rules: config.rules,
+      })(<Input />)}
+    </Form.Item>
+  ),
+  dropdown: (config, key) => (
+    <Form.Item
+      key={key}
+      label={
+        <span>{config.label}&nbsp;</span>
+      }
+    >
+      {getFieldDecorator(config.id, {
+        rules: config.rules,
+      })(<Input />)}
+    </Form.Item>
+  ),
 });
 
 function EditFormSrc(props) {

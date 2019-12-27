@@ -21,6 +21,19 @@ export function DataTable(props) {
   }, [deleteRequest]);
 
   useEffect(() => {
+    if (editVisible) {
+      (async () => {
+        const currentScreenConfig = !!currentScreen ? config.find(item => item.id === currentScreen) : null;
+        const relations = currentScreenConfig.columns.filter(column => !!column.relation).map(column => column.relation);
+
+        const res = await axiosAuthInstance.post(`relations`, relations);
+
+        console.log(res);
+      })();
+    }
+  }, [editVisible]);
+
+  useEffect(() => {
     if (props.columns && props.data) {
       const columns = [];
       columns.push({
