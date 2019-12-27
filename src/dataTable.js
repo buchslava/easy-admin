@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import 'antd/dist/antd.css';
-import './index.css';
-import { useStore } from './store';
-import { Table, Button, Modal, Popconfirm } from 'antd';
+import React, { useState, useEffect } from "react";
+import "antd/dist/antd.css";
+import "./index.css";
+import { useStore } from "./store";
+import { Table, Button, Modal, Popconfirm } from "antd";
 import { axiosAuthInstance } from "./connection";
 import { EditForm } from "./editForm";
 
@@ -14,16 +14,7 @@ export function DataTable(props) {
   const [columns, setColumns] = useState();
   const [data, setData] = useState();
   const [deleteRequest, setDeleteRequest] = useState(0);
-
-  const currentScreenConfig = !!currentScreen ? config.find(item => item.id === currentScreen) : null;
-  const handleDelete = rowid => setDeleteRequest(rowid);
-  const doDelete = rowid => {
-    (async () => {
-      await axiosAuthInstance.get(`delete/${currentScreen}/${rowid}`);
-      let rows = [...data.filter(record => record.key !== rowid)];
-      setData(rows);
-    })();
-  };
+  const [currentRecordId, setCurrentRecordId] = useState(0);
 
   useEffect(() => {
     doDelete(deleteRequest);
@@ -46,11 +37,16 @@ export function DataTable(props) {
       }
       columns.push({
         title: '...',
+        width: 200,
         dataIndex: 'operation',
-        render: (text, record) =>
+        render: (text, record) => (
+          <span>
+            <a href="#" onClick={() => handleEdit(record.key)}>Edit</a>&nbsp;|&nbsp;
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-            <a>Delete</a>
-          </Popconfirm>
+              <a>Delete</a>
+            </Popconfirm>
+          </span>
+        )
       });
       setColumns(columns);
       const data = props.data.rows.map(row => ({ ...row, key: row.rowid }));
@@ -58,16 +54,42 @@ export function DataTable(props) {
     }
   }, [props.columns, props.data]);
 
+  const currentScreenConfig = !!currentScreen ? config.find(item => item.id === currentScreen) : null;
+
+  const handleDelete = rowid => setDeleteRequest(rowid);
+
+  const handleEdit = rowid => {
+    setCurrentRecordId(rowid);
+    setEditVisible(true)
+  };
+
+  const doDelete = rowid => {
+    (async () => {
+      if (currentScreen) {
+        await axiosAuthInstance.get(`delete/${currentScreen}/${rowid}`);
+        let rows = [...data.filter(record => record.key !== rowid)];
+        setData(rows);
+      }
+    })();
+  };
+
   const doEditOk = () => {
     setSubmitFlag(submitFlag + 1);
   };
 
   const handleEditOk = (formData) => {
     (async () => {
-      const res = await axiosAuthInstance.post(`insert/${currentScreen}`, formData);
-      const newRecord = res.data;
-      newRecord.key = newRecord.rowid;
-      setData([newRecord, ...data]);
+      if (currentRecordId === 0) {
+        const res = await axiosAuthInstance.post(`insert/${currentScreen}`, formData);
+        const newRecord = res.data;
+        newRecord.key = newRecord.rowid;
+        setData([newRecord, ...data]);
+      } else {
+        const res = await axiosAuthInstance.post(`update/${currentScreen}/${currentRecordId}`, formData);
+        const index = data.findIndex(record => record.rowid === currentRecordId);
+        data[index] = { ...res.data, rowid: currentRecordId, key: currentRecordId };
+        setData(data);
+      }
       setEditVisible(false);
     })();
   };
@@ -75,17 +97,17 @@ export function DataTable(props) {
   const handleEditCancel = () => {
     setEditVisible(false);
   };
-  const addNewRow = () => setEditVisible(true);
+
+  const addNewRow = () => {
+    setCurrentRecordId(0);
+    setEditVisible(true);
+  }
 
   return (
     !currentScreen || !columns ? (<></>) :
       <div>
-        <Button onClick={addNewRow} type="primary" style={{ margin: 10 }}>
-          New
-            </Button>
-        <Button type="secondary" style={{ margin: 10 }}>
-          Refresh
-            </Button>
+        <Button onClick={addNewRow} type="primary" style={{ margin: 10 }}>New</Button>
+        <Button type="secondary" style={{ margin: 10 }}>Refresh</Button>
         <Table
           columns={columns}
           dataSource={data}
@@ -96,9 +118,8 @@ export function DataTable(props) {
           visible={editVisible}
           onOk={doEditOk}
           confirmLoading={confirmEditLoading}
-          onCancel={handleEditCancel}
-        >
-          <EditForm submitFlag={submitFlag} handleEditOk={handleEditOk}></EditForm>
+          onCancel={handleEditCancel}>
+          <EditForm recordId={currentRecordId} submitFlag={submitFlag} handleEditOk={handleEditOk}></EditForm>
         </Modal>
       </div>
   )

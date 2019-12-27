@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import 'antd/dist/antd.css';
-import './index.css';
-import { useStore } from './store';
-import { Spin, Form, Input } from 'antd';
-// import { axiosInstance, axiosAuthInstance } from "./connection";
+import React, { useEffect } from "react";
+import "antd/dist/antd.css";
+import "./index.css";
+import { useStore } from "./store";
+import { Form, Input } from "antd";
+import { axiosAuthInstance } from "./connection";
 
 const createFieldResoler = getFieldDecorator => ({
   text: (config, key) => (
@@ -21,10 +21,9 @@ const createFieldResoler = getFieldDecorator => ({
 });
 
 function EditFormSrc(props) {
-  const [loading, setLoading] = useState(false);
   const [{ config, currentScreen }] = useStore();
   const currentScreenConfig = !!currentScreen ? config.find(item => item.id === currentScreen) : null;
-  const { form } = props;
+  const { form, recordId } = props;
 
   useEffect(() => {
     if (props.submitFlag === 0) {
@@ -50,6 +49,19 @@ function EditFormSrc(props) {
     },
   };
 
+  useEffect(() => {
+    if (recordId > 0) {
+      (async () => {
+        const res = await axiosAuthInstance.get(`record/${currentScreen}/${recordId}`);
+        const formOnlyValues = currentScreenConfig.columns.map(column => column.id).reduce((acc, columnId) => {
+          acc[columnId] = res.data.rows[columnId];
+          return acc;
+        }, {});
+        form.setFieldsValue(formOnlyValues);
+      })();
+    }
+  }, [recordId]);
+
   const { getFieldDecorator } = props.form;
   const fieldResoler = createFieldResoler(getFieldDecorator);
   const fields = currentScreenConfig.columns.map((column, i) => {
@@ -58,7 +70,7 @@ function EditFormSrc(props) {
   });
 
   return (
-    loading ? (<Spin tip="Loading..."></Spin>) : (<Form {...formItemLayout}>{fields}</Form>)
+    <Form {...formItemLayout}>{fields}</Form>
   );
 }
 
